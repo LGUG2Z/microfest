@@ -1,0 +1,5 @@
+.idea
+*.db
+microfest-server
+*.json
+vendor

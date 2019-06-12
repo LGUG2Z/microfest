@@ -1,0 +1,179 @@
+# @format
+
+consumes:
+  - application/json
+info:
+  title: Microfest
+  contact:
+    name: J. Iqbal
+    url: https://github.com/LGUG2Z/microfest
+    email: jade@beamery.com
+  description: Micro Application Manifest Manager
+  version: 0.1.0
+paths:
+  /backup:
+    post:
+      summary: Backs up the database to a GCS bucket
+      operationId: PostBackup
+      security:
+        - APIKeyHeader: []
+      produces:
+        - text/plain
+      parameters:
+        - in: query
+          name: bucket
+          type: string
+          description: GCS bucket name
+          required: true
+      responses:
+        201:
+          description: Backup Created
+          schema:
+            type: string
+        401:
+          description: Unauthorized
+          headers:
+            WWW-Authenticate:
+              description: Authorization information is missing or invalid
+              type: string
+        500:
+          description: Internal Server Error
+          schema:
+            type: string
+  /manifest:
+    get:
+      summary: Gets the latest manifest
+      operationId: GetManifest
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: host
+          type: string
+          description: The environment hostname
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            description: The latest manifest
+            type: object
+        500:
+          description: Internal Server Error
+          schema:
+            type: string
+    put:
+      summary: Submits a patch to create a new manifest
+      operationId: PutManifest
+      security:
+        - APIKeyHeader: []
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      parameters:
+        - in: query
+          name: host
+          type: string
+          description: The environment hostname
+          required: true
+        - in: body
+          name: microfest
+          description: The manifest patch to submit
+          schema:
+            type: object
+            maxProperties: 3
+            required:
+              - release
+              - manifest
+              - updated
+            properties:
+              release:
+                type: string
+              manifest:
+                type: object
+              updated:
+                type: array
+                items:
+                  type: string
+      responses:
+        201:
+          description: Manifest Created
+          schema:
+            type: string
+        400:
+          description: Bad Request Body
+        401:
+          description: Unauthorized
+          headers:
+            WWW-Authenticate:
+              description: Authorization information is missing or invalid
+              type: string
+        500:
+          description: Internal Server Error
+          schema:
+            type: string
+    post:
+      summary: Submits a new manifest
+      operationId: PostManifest
+      security:
+        - APIKeyHeader: []
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      parameters:
+        - in: query
+          name: host
+          type: string
+          description: The environment hostname
+          required: true
+        - in: body
+          name: microfest
+          description: The manifest to submit
+          schema:
+            type: object
+            maxProperties: 3
+            required:
+              - release
+              - manifest
+              - updated
+            properties:
+              release:
+                type: string
+              manifest:
+                type: object
+              updated:
+                type: array
+                items:
+                  type: string
+      responses:
+        201:
+          description: Manifest Created
+          schema:
+            type: string
+        400:
+          description: Bad Request Body
+        401:
+          description: Unauthorized
+          headers:
+            WWW-Authenticate:
+              description: Authorization information is missing or invalid
+              type: string
+        500:
+          description: Internal Server Error
+          schema:
+            type: string
+produces:
+  - application/json
+schemes:
+  - http
+swagger: "2.0"
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: X-API-KEY
+definitions:
+  principal:
+    type: string
