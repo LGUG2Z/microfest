@@ -30,6 +30,7 @@ func configureAPI(api *operations.MicrofestAPI) http.Handler {
 	api.PostManifestHandler = operations.PostManifestHandlerFunc(handlers.PostManifest)
 	api.PutManifestHandler = operations.PutManifestHandlerFunc(handlers.PutManifest)
 	api.PostBackupHandler = operations.PostBackupHandlerFunc(handlers.PostBackup)
+	api.GetInfoHandler = operations.GetInfoHandlerFunc(handlers.GetInfo)
 
 	ApiKey := os.Getenv("API_KEY")
 	if len(ApiKey) == 0 {

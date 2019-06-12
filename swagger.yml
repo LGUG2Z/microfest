@@ -40,6 +40,38 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+  /info:
+    get:
+      summary: Gets information about the current manifest
+      operationId: GetInfo
+      security:
+        - APIKeyHeader: []
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: key
+          type: string
+          description: Manifest key
+          required: true
+        - in: query
+          name: host
+          type: string
+          description: The environment hostname
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+        404:
+          description: Not Found
+          schema:
+            type: string
+        500:
+          description: Internal Server Error
+          schema:
+            type: string
   /manifest:
     get:
       summary: Gets the latest manifest

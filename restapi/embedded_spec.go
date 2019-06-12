@@ -85,6 +85,56 @@ func init() {
         }
       }
     },
+    "/info": {
+      "get": {
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Gets information about the current manifest",
+        "operationId": "GetInfo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Manifest key",
+            "name": "key",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The environment hostname",
+            "name": "host",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/manifest": {
       "get": {
         "produces": [
@@ -345,6 +395,56 @@ func init() {
                 "type": "string",
                 "description": "Authorization information is missing or invalid"
               }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Gets information about the current manifest",
+        "operationId": "GetInfo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Manifest key",
+            "name": "key",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The environment hostname",
+            "name": "host",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "string"
             }
           },
           "500": {

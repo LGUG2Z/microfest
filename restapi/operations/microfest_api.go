@@ -40,6 +40,9 @@ func NewMicrofestAPI(spec *loads.Document) *MicrofestAPI {
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
 		TxtProducer:         runtime.TextProducer(),
+		GetInfoHandler: GetInfoHandlerFunc(func(params GetInfoParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetInfo has not yet been implemented")
+		}),
 		GetManifestHandler: GetManifestHandlerFunc(func(params GetManifestParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetManifest has not yet been implemented")
 		}),
@@ -100,6 +103,8 @@ type MicrofestAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// GetInfoHandler sets the operation handler for the get info operation
+	GetInfoHandler GetInfoHandler
 	// GetManifestHandler sets the operation handler for the get manifest operation
 	GetManifestHandler GetManifestHandler
 	// PostBackupHandler sets the operation handler for the post backup operation
@@ -177,6 +182,10 @@ func (o *MicrofestAPI) Validate() error {
 
 	if o.APIKeyHeaderAuth == nil {
 		unregistered = append(unregistered, "XAPIKEYAuth")
+	}
+
+	if o.GetInfoHandler == nil {
+		unregistered = append(unregistered, "GetInfoHandler")
 	}
 
 	if o.GetManifestHandler == nil {
@@ -307,6 +316,11 @@ func (o *MicrofestAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/info"] = NewGetInfo(o.context, o.GetInfoHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
