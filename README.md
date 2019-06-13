@@ -37,7 +37,7 @@ to get very messy very quickly. Enter `microfest`.
 which scales horizontally across multiple production and non-production environments with minimal
 configuration and zero templating. Under the hood, `microfest` uses [bbolt](https://github.com/etcd-io/bbolt)
 as a fast and reliable key/value store that is optimised for read-intensive workloads. As `bbolt` uses an
-exclusive write lock on the database which nicely handles the potential problem of multiple concurrent updates.
+exclusive write lock on the database, this nicely handles the potential problem of multiple concurrent updates.
 
 `microfest` exposes the following routes:
 ## `/manifest`
