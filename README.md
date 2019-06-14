@@ -108,7 +108,7 @@ curl -X PUT 'http://localhost:8000/manifest?host=production.host' \
 ```
 
 ## `/backup`
-###`POST`
+### `POST`
 Create a backup of the `microfest.db` file to a GCS bucket. Requires `GOOGLE_APPLICATION_CREDENTIALS`
 to be set with write access to the bucket specified.
 ```bash

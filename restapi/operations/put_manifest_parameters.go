@@ -37,7 +37,7 @@ type PutManifestParams struct {
 	  In: query
 	*/
 	Host string
-	/*The manifest patch to submit
+	/*The manifest to submit
 	  In: body
 	*/
 	Microfest PutManifestBody

@@ -19,6 +19,10 @@ const GetManifestOKCode int = 200
 swagger:response getManifestOK
 */
 type GetManifestOK struct {
+	/*Cache-Control
+
+	 */
+	CacheControl string `json:"Cache-Control"`
 
 	/*
 	  In: Body
@@ -30,6 +34,17 @@ type GetManifestOK struct {
 func NewGetManifestOK() *GetManifestOK {
 
 	return &GetManifestOK{}
+}
+
+// WithCacheControl adds the cacheControl to the get manifest o k response
+func (o *GetManifestOK) WithCacheControl(cacheControl string) *GetManifestOK {
+	o.CacheControl = cacheControl
+	return o
+}
+
+// SetCacheControl sets the cacheControl to the get manifest o k response
+func (o *GetManifestOK) SetCacheControl(cacheControl string) {
+	o.CacheControl = cacheControl
 }
 
 // WithPayload adds the payload to the get manifest o k response
@@ -45,6 +60,13 @@ func (o *GetManifestOK) SetPayload(payload interface{}) {
 
 // WriteResponse to the client
 func (o *GetManifestOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	// response header Cache-Control
+
+	cacheControl := o.CacheControl
+	if cacheControl != "" {
+		rw.Header().Set("Cache-Control", cacheControl)
+	}
 
 	rw.WriteHeader(200)
 	payload := o.Payload

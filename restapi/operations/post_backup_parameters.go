@@ -32,7 +32,7 @@ type PostBackupParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*GCS bucket name
+	/*The GCS bucket to back up to
 	  Required: true
 	  In: query
 	*/

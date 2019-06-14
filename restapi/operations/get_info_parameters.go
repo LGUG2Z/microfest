@@ -37,7 +37,7 @@ type GetInfoParams struct {
 	  In: query
 	*/
 	Host string
-	/*Manifest key
+	/*The manifest key
 	  Required: true
 	  In: query
 	*/

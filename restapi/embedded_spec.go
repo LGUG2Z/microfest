@@ -53,11 +53,7 @@ func init() {
         "operationId": "PostBackup",
         "parameters": [
           {
-            "type": "string",
-            "description": "GCS bucket name",
-            "name": "bucket",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Bucket"
           }
         ],
         "responses": {
@@ -68,19 +64,10 @@ func init() {
             }
           },
           "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "WWW-Authenticate": {
-                "type": "string",
-                "description": "Authorization information is missing or invalid"
-              }
-            }
+            "$ref": "#/responses/Unauthorized"
           },
           "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -99,24 +86,17 @@ func init() {
         "operationId": "GetInfo",
         "parameters": [
           {
-            "type": "string",
-            "description": "Manifest key",
-            "name": "key",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Key"
           },
           {
-            "type": "string",
-            "description": "The environment hostname",
-            "name": "host",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Host"
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
+              "description": "The requested manifest",
               "type": "object"
             }
           },
@@ -127,10 +107,7 @@ func init() {
             }
           },
           "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -144,11 +121,7 @@ func init() {
         "operationId": "GetManifest",
         "parameters": [
           {
-            "type": "string",
-            "description": "The environment hostname",
-            "name": "host",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Host"
           }
         ],
         "responses": {
@@ -157,13 +130,16 @@ func init() {
             "schema": {
               "description": "The latest manifest",
               "type": "object"
+            },
+            "headers": {
+              "Cache-Control": {
+                "type": "string",
+                "description": "Cache-Control"
+              }
             }
           },
           "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -183,65 +159,24 @@ func init() {
         "operationId": "PutManifest",
         "parameters": [
           {
-            "type": "string",
-            "description": "The environment hostname",
-            "name": "host",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Host"
           },
           {
-            "description": "The manifest patch to submit",
-            "name": "microfest",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "maxProperties": 3,
-              "required": [
-                "release",
-                "manifest",
-                "updated"
-              ],
-              "properties": {
-                "manifest": {
-                  "type": "object"
-                },
-                "release": {
-                  "type": "string"
-                },
-                "updated": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "$ref": "#/parameters/Microfest"
           }
         ],
         "responses": {
           "201": {
-            "description": "Manifest Created",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/ManifestCreated"
           },
           "400": {
             "description": "Bad Request Body"
           },
           "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "WWW-Authenticate": {
-                "type": "string",
-                "description": "Authorization information is missing or invalid"
-              }
-            }
+            "$ref": "#/responses/Unauthorized"
           },
           "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       },
@@ -261,65 +196,24 @@ func init() {
         "operationId": "PostManifest",
         "parameters": [
           {
-            "type": "string",
-            "description": "The environment hostname",
-            "name": "host",
-            "in": "query",
-            "required": true
+            "$ref": "#/parameters/Host"
           },
           {
-            "description": "The manifest to submit",
-            "name": "microfest",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "maxProperties": 3,
-              "required": [
-                "release",
-                "manifest",
-                "updated"
-              ],
-              "properties": {
-                "manifest": {
-                  "type": "object"
-                },
-                "release": {
-                  "type": "string"
-                },
-                "updated": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "$ref": "#/parameters/Microfest"
           }
         ],
         "responses": {
           "201": {
-            "description": "Manifest Created",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/ManifestCreated"
           },
           "400": {
             "description": "Bad Request Body"
           },
           "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "WWW-Authenticate": {
-                "type": "string",
-                "description": "Authorization information is missing or invalid"
-              }
-            }
+            "$ref": "#/responses/Unauthorized"
           },
           "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/responses/InternalServerError"
           }
         }
       }
@@ -328,6 +222,80 @@ func init() {
   "definitions": {
     "principal": {
       "type": "string"
+    }
+  },
+  "parameters": {
+    "Bucket": {
+      "type": "string",
+      "description": "The GCS bucket to back up to",
+      "name": "bucket",
+      "in": "query",
+      "required": true
+    },
+    "Host": {
+      "type": "string",
+      "description": "The environment hostname",
+      "name": "host",
+      "in": "query",
+      "required": true
+    },
+    "Key": {
+      "type": "string",
+      "description": "The manifest key",
+      "name": "key",
+      "in": "query",
+      "required": true
+    },
+    "Microfest": {
+      "description": "The manifest to submit",
+      "name": "microfest",
+      "in": "body",
+      "schema": {
+        "type": "object",
+        "maxProperties": 3,
+        "required": [
+          "release",
+          "manifest",
+          "updated"
+        ],
+        "properties": {
+          "manifest": {
+            "type": "object"
+          },
+          "release": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "InternalServerError": {
+      "description": "Internal Server Error",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "ManifestCreated": {
+      "description": "Manifest Created",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "Unauthorized": {
+      "description": "Unauthorized",
+      "headers": {
+        "WWW-Authenticate": {
+          "type": "string",
+          "description": "Authorization information is missing or invalid"
+        }
+      }
     }
   },
   "securityDefinitions": {
@@ -375,7 +343,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "GCS bucket name",
+            "description": "The GCS bucket to back up to",
             "name": "bucket",
             "in": "query",
             "required": true
@@ -421,7 +389,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "Manifest key",
+            "description": "The manifest key",
             "name": "key",
             "in": "query",
             "required": true
@@ -438,6 +406,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
+              "description": "The requested manifest",
               "type": "object"
             }
           },
@@ -478,6 +447,12 @@ func init() {
             "schema": {
               "description": "The latest manifest",
               "type": "object"
+            },
+            "headers": {
+              "Cache-Control": {
+                "type": "string",
+                "description": "Cache-Control"
+              }
             }
           },
           "500": {
@@ -511,7 +486,7 @@ func init() {
             "required": true
           },
           {
-            "description": "The manifest patch to submit",
+            "description": "The manifest to submit",
             "name": "microfest",
             "in": "body",
             "schema": {
@@ -649,6 +624,80 @@ func init() {
   "definitions": {
     "principal": {
       "type": "string"
+    }
+  },
+  "parameters": {
+    "Bucket": {
+      "type": "string",
+      "description": "The GCS bucket to back up to",
+      "name": "bucket",
+      "in": "query",
+      "required": true
+    },
+    "Host": {
+      "type": "string",
+      "description": "The environment hostname",
+      "name": "host",
+      "in": "query",
+      "required": true
+    },
+    "Key": {
+      "type": "string",
+      "description": "The manifest key",
+      "name": "key",
+      "in": "query",
+      "required": true
+    },
+    "Microfest": {
+      "description": "The manifest to submit",
+      "name": "microfest",
+      "in": "body",
+      "schema": {
+        "type": "object",
+        "maxProperties": 3,
+        "required": [
+          "release",
+          "manifest",
+          "updated"
+        ],
+        "properties": {
+          "manifest": {
+            "type": "object"
+          },
+          "release": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "InternalServerError": {
+      "description": "Internal Server Error",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "ManifestCreated": {
+      "description": "Manifest Created",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "Unauthorized": {
+      "description": "Unauthorized",
+      "headers": {
+        "WWW-Authenticate": {
+          "type": "string",
+          "description": "Authorization information is missing or invalid"
+        }
+      }
     }
   },
   "securityDefinitions": {

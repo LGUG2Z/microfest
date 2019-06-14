@@ -20,26 +20,16 @@ paths:
       produces:
         - text/plain
       parameters:
-        - in: query
-          name: bucket
-          type: string
-          description: GCS bucket name
-          required: true
+        - $ref: '#/parameters/Bucket'
       responses:
         201:
           description: Backup Created
           schema:
             type: string
         401:
-          description: Unauthorized
-          headers:
-            WWW-Authenticate:
-              description: Authorization information is missing or invalid
-              type: string
+          $ref: '#/responses/Unauthorized'
         500:
-          description: Internal Server Error
-          schema:
-            type: string
+          $ref: '#/responses/InternalServerError'
   /info:
     get:
       summary: Gets information about the current manifest
@@ -49,29 +39,20 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: query
-          name: key
-          type: string
-          description: Manifest key
-          required: true
-        - in: query
-          name: host
-          type: string
-          description: The environment hostname
-          required: true
+        - $ref: '#/parameters/Key'
+        - $ref: '#/parameters/Host'
       responses:
         200:
           description: OK
           schema:
+            description: The requested manifest
             type: object
         404:
           description: Not Found
           schema:
             type: string
         500:
-          description: Internal Server Error
-          schema:
-            type: string
+          $ref: '#/responses/InternalServerError'
   /manifest:
     get:
       summary: Gets the latest manifest
@@ -79,21 +60,19 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: query
-          name: host
-          type: string
-          description: The environment hostname
-          required: true
+        - $ref: '#/parameters/Host'
       responses:
         200:
           description: OK
           schema:
             description: The latest manifest
             type: object
+          headers:
+            Cache-Control:
+              description: Cache-Control
+              type: string
         500:
-          description: Internal Server Error
-          schema:
-            type: string
+          $ref: '#/responses/InternalServerError'
     put:
       summary: Submits a patch to create a new manifest
       operationId: PutManifest
@@ -104,47 +83,17 @@ paths:
       produces:
         - text/plain
       parameters:
-        - in: query
-          name: host
-          type: string
-          description: The environment hostname
-          required: true
-        - in: body
-          name: microfest
-          description: The manifest patch to submit
-          schema:
-            type: object
-            maxProperties: 3
-            required:
-              - release
-              - manifest
-              - updated
-            properties:
-              release:
-                type: string
-              manifest:
-                type: object
-              updated:
-                type: array
-                items:
-                  type: string
+        - $ref: '#/parameters/Host'
+        - $ref: '#/parameters/Microfest'
       responses:
         201:
-          description: Manifest Created
-          schema:
-            type: string
+          $ref: '#/responses/ManifestCreated'
         400:
           description: Bad Request Body
         401:
-          description: Unauthorized
-          headers:
-            WWW-Authenticate:
-              description: Authorization information is missing or invalid
-              type: string
+          $ref: '#/responses/Unauthorized'
         500:
-          description: Internal Server Error
-          schema:
-            type: string
+          $ref: '#/responses/InternalServerError'
     post:
       summary: Submits a new manifest
       operationId: PostManifest
@@ -155,47 +104,17 @@ paths:
       produces:
         - text/plain
       parameters:
-        - in: query
-          name: host
-          type: string
-          description: The environment hostname
-          required: true
-        - in: body
-          name: microfest
-          description: The manifest to submit
-          schema:
-            type: object
-            maxProperties: 3
-            required:
-              - release
-              - manifest
-              - updated
-            properties:
-              release:
-                type: string
-              manifest:
-                type: object
-              updated:
-                type: array
-                items:
-                  type: string
+        - $ref: '#/parameters/Host'
+        - $ref: '#/parameters/Microfest'
       responses:
         201:
-          description: Manifest Created
-          schema:
-            type: string
+          $ref: '#/responses/ManifestCreated'
         400:
           description: Bad Request Body
         401:
-          description: Unauthorized
-          headers:
-            WWW-Authenticate:
-              description: Authorization information is missing or invalid
-              type: string
+          $ref: '#/responses/Unauthorized'
         500:
-          description: Internal Server Error
-          schema:
-            type: string
+          $ref: '#/responses/InternalServerError'
 produces:
   - application/json
 schemes:
@@ -209,3 +128,58 @@ securityDefinitions:
 definitions:
   principal:
     type: string
+parameters:
+  Bucket:
+    in: query
+    name: bucket
+    type: string
+    description: The GCS bucket to back up to
+    required: true
+  Key:
+    in: query
+    name: key
+    type: string
+    description: The manifest key
+    required: true
+  Host:
+    in: query
+    name: host
+    type: string
+    description: The environment hostname
+    required: true
+  Microfest:
+    in: body
+    name: microfest
+    description: The manifest to submit
+    schema:
+      type: object
+      maxProperties: 3
+      required:
+        - release
+        - manifest
+        - updated
+      properties:
+        release:
+          type: string
+        manifest:
+          type: object
+        updated:
+          type: array
+          items:
+            type: string
+
+responses:
+  ManifestCreated:
+    description: Manifest Created
+    schema:
+      type: string
+  Unauthorized:
+    description: Unauthorized
+    headers:
+      WWW-Authenticate:
+        description: Authorization information is missing or invalid
+        type: string
+  InternalServerError:
+    description: Internal Server Error
+    schema:
+      type: string

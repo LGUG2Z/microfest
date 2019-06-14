@@ -36,7 +36,7 @@ func GetManifest(params operations.GetManifestParams) middleware.Responder {
 		return operations.NewGetManifestInternalServerError().WithPayload(err.Error())
 	}
 
-	return operations.NewGetManifestOK().WithPayload(m.Manifest)
+	return operations.NewGetManifestOK().WithPayload(m.Manifest).WithCacheControl("no-cache")
 }
 
 func PutManifest(params operations.PutManifestParams, principal *models.Principal) middleware.Responder {
