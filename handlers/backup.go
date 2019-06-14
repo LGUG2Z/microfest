@@ -3,15 +3,13 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/LGUG2Z/microfest/models"
 	"github.com/LGUG2Z/microfest/restapi/operations"
 	"github.com/go-openapi/runtime/middleware"
+	bolt "go.etcd.io/bbolt"
 )
 
 func PostBackup(params operations.PostBackupParams, principal *models.Principal) middleware.Responder {
@@ -23,17 +21,23 @@ func PostBackup(params operations.PostBackupParams, principal *models.Principal)
 	defer client.Close()
 
 	bucket := client.Bucket(params.Bucket)
-	name := fmt.Sprintf("microfest-backup-%s.db", time.Now().Format("2006-01-02-15:04:05-MST"))
+	name := fmt.Sprintf("microfest-backup-%s.db", time.Now().Format("2006-01-02-150405-MST"))
 	objectWriter := bucket.Object(name).NewWriter(ctx)
 
-	file, err := os.Open(BoltPath)
+	db, err := bolt.Open(BoltPath, 0666, nil)
 	if err != nil {
-		log.Fatal(err)
+		return operations.NewGetInfoInternalServerError().WithPayload(err.Error())
 	}
-	defer file.Close()
+	defer db.Close()
 
-	if _, err := io.Copy(objectWriter, file); err != nil {
-		return operations.NewPostBackupInternalServerError()
+	if err := db.View(func(tx *bolt.Tx) error {
+		if _, err := tx.WriteTo(objectWriter); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return operations.NewPostBackupInternalServerError().WithPayload(err.Error())
 	}
 
 	if err := objectWriter.Close(); err != nil {
