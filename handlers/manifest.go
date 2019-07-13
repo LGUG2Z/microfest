@@ -31,7 +31,7 @@ func GetManifest(params operations.GetManifestParams, principal *models.Principa
 			return ErrManifestNotFound(params.Host)
 		}
 
-		latest := bucket.Get([]byte("latest"))
+		latest := bucket.Get([]byte("manifest"))
 		return json.Unmarshal(latest, &m)
 	}); err != nil {
 		switch err.Error() {
@@ -60,7 +60,7 @@ func PutManifest(params operations.PutManifestParams, principal *models.Principa
 			return ErrManifestNotFound(params.Host)
 		}
 
-		latest := bucket.Get([]byte("latest"))
+		latest := bucket.Get([]byte("manifest"))
 		return json.Unmarshal(latest, &m)
 	}); err != nil {
 		switch err.Error() {
@@ -83,7 +83,7 @@ func PutManifest(params operations.PutManifestParams, principal *models.Principa
 			return err
 		}
 
-		return bucket.Put([]byte("latest"), manifest)
+		return bucket.Put([]byte("manifest"), manifest)
 	}); err != nil {
 		return operations.NewPutManifestInternalServerError().WithPayload(err.Error())
 	}
@@ -109,7 +109,7 @@ func PostManifest(params operations.PostManifestParams, principal *models.Princi
 			return err
 		}
 
-		if err = bucket.Put([]byte("latest"), manifest); err != nil {
+		if err = bucket.Put([]byte("manifest"), manifest); err != nil {
 			return err
 		}
 

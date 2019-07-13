@@ -29,7 +29,7 @@ func GetConfiguration(params operations.GetConfigurationParams, principal *model
 			return ErrConfigurationNotFound(params.Host)
 		}
 
-		latest := bucket.Get([]byte("latest"))
+		latest := bucket.Get([]byte("configuration"))
 		return json.Unmarshal(latest, c)
 	}); err != nil {
 		switch err.Error() {
@@ -61,7 +61,7 @@ func PostConfiguration(params operations.PostConfigurationParams, principal *mod
 			return err
 		}
 
-		if err = bucket.Put([]byte("latest"), configuration); err != nil {
+		if err = bucket.Put([]byte("configuration"), configuration); err != nil {
 			return err
 		}
 
