@@ -9,6 +9,13 @@ info:
   description: Micro Application Manifest and Configuration Manager
   version: 0.0.1
 paths:
+  /healthcheck:
+    get:
+      summary: Gets the health of the service
+      operationId: GetHealthcheck
+      responses:
+        200:
+          description: OK
   /configuration:
     get:
       summary: Gets the configuration

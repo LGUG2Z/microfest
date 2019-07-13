@@ -1,0 +1,18 @@
+# @format
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+commonLabels:
+  app: microfest
+kind: Kustomization
+namespace: microfest # your own namespace here
+resources:
+  - deployment.yaml
+  - ingress.yaml
+  - namespace.yaml
+  - service.yaml
+  - persistent-volume-claim.yaml
+secretGenerator:
+  - literals:
+      - API_KEY=bla # your own API key here
+    behavior: create
+    name: microfest-secrets

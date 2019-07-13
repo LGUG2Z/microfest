@@ -1,0 +1,59 @@
+# @format
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microfest
+spec:
+  replicas: 1
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-type # your own key here
+                    operator: In
+                    values:
+                      - general # your own value here
+      containers:
+        - env:
+            - name: PORT
+              value: "8000"
+            - name: HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: BOLT_PATH
+              value: /boltdb/bolt.db
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: microfest-secrets
+                  key: API_KEY
+          image: lgug2z/microfest:latest
+          imagePullPolicy: Always
+          name: microfest
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthcheck
+              port: 8000
+            periodSeconds: 10
+            successThreshold: 2
+            timeoutSeconds: 15
+          volumeMounts:
+            - mountPath: /boltdb
+              name: boltdb
+      tolerations:
+        - effect: NoSchedule
+          key: group # your own key here
+          operator: Equal
+          value: general # your own value here
+      volumes:
+        - name: boltdb
+          persistentVolumeClaim:
+            claimName: microfest

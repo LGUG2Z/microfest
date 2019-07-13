@@ -1,0 +1,10 @@
+# @format
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: microfest
+spec:
+  ports:
+    - name: http
+      port: 8000

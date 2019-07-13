@@ -9,12 +9,11 @@ import (
 	"os"
 
 	"github.com/LGUG2Z/microfest/handlers"
+	"github.com/LGUG2Z/microfest/models"
 	"github.com/LGUG2Z/microfest/restapi/operations"
 	interpose "github.com/carbocation/interpose/middleware"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-
-	"github.com/LGUG2Z/microfest/models"
 )
 
 //go:generate swagger generate server --target ../../microfest --name Microfest --spec ../swagger.yml --principal models.Principal
@@ -26,6 +25,7 @@ func configureFlags(api *operations.MicrofestAPI) {
 func configureAPI(api *operations.MicrofestAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
+	api.GetHealthcheckHandler = operations.GetHealthcheckHandlerFunc(handlers.GetHealthcheck)
 	api.GetConfigurationHandler = operations.GetConfigurationHandlerFunc(handlers.GetConfiguration)
 	api.PostConfigurationHandler = operations.PostConfigurationHandlerFunc(handlers.PostConfiguration)
 	api.GetManifestHandler = operations.GetManifestHandlerFunc(handlers.GetManifest)

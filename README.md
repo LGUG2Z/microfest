@@ -11,7 +11,10 @@ horizontally across multiple production and non-production environments by defau
   * [`/configuration`](#--configuration-)
     + [`POST`](#-post--1)
     + [`GET`](#-get--1)
+  * [`/healthcheck`](#--healthcheck-)
+    + [`GET`](#-get--2)
 - [Javascript Example](#javascript-example)
+- [Deploying on Kubernetes](#deploying-on-kubernetes)
 - [Performance](#performance)
 
 ## Background
@@ -118,8 +121,8 @@ Add a new configuration version for a hostname and set it as the configuration t
 ```json5
 // configuration.json
 {
-  "apiKey1": "xxxxx",
-  "apiKey2": "xxxxx"
+  "value1": "xxxxx",
+  "value2": "xxxxx"
 }
 ```
 
@@ -139,9 +142,21 @@ curl -X GET 'http://localhost:8000/configuration?host=production.host'
 
 ```json
 {
-  "apiKey1": "xxxxx",
-  "apiKey2": "xxxxx"
+  "value1": "xxxxx",
+  "value2": "xxxxx"
 }
+```
+
+### `/healthcheck`
+#### `GET`
+A healthcheck endpoint for readiness and liveness probes.
+
+```bash
+curl -X GET 'http://localhost:8000/healthcheck'
+
+# HTTP/1.1 200 OK
+# Date: Sat, 13 Jul 2019 12:39:16 GMT
+# Content-Length: 0
 ```
 
 ## Javascript Example
@@ -149,7 +164,7 @@ Once you have microfest deployed, it can be called to dynamically load the manif
 environment in a `single-spa` application like this:
 
 ```js
-fetch(`https://mf.example.com/manifest?host=${window.location.hostname}`)
+fetch(`https://mf.example.com/manifest?host=${window.location.hostname}`, { headers: {"X-API-KEY": apiKey }})
   .then(res => res.json())
   .then((manifest) => {
     window.manifest = manifest;
@@ -162,8 +177,39 @@ fetch(`https://mf.example.com/manifest?host=${window.location.hostname}`)
   });
 ```
 
+## Deploying on Kubernetes
+In the `./kubernetes` a set of [kustomize](https://kustomize.io/) manifests are provided to help you get up and running
+with `microfest` as quickly as possible on Kubernetes. Modify the values with the comments `# your own X here`:
+
+```text
+./kubernetes/deployment.yaml
+16:                  - key: node-type # your own key here
+19:                      - general # your own value here
+53:          key: group # your own key here
+55:          value: general # your own value here
+
+./kubernetes/ingress.yaml
+13:    - host: microfest.example.com # your own host here
+21:        - microfest.example.com # your own host here
+22:      secretName: tls # your own tls secret name here
+
+./kubernetes/kustomization.yaml
+7:namespace: microfest # your own namespace here
+16:      - API_KEY=bla # your own API key here
+
+./kubernetes/namespace.yaml
+6:  name: microfest # your own namespace here
+```
+
+It is important ensure that Node Affinity and Taint Tolerations for your nodes are set when deploying `microfest`, to
+ensure that any subsequent redeployments of `microfest` will always find the BoltDB data volume on the same node to
+reattach.
+
+Once you have modified the values, run `kustomize build ./kubernetes | kubectl apply -f -` to get `microfest` running
+on your cluster.
+
 ## Performance
-Report from running `vegeta attack -duration=60s` on the `GET /manifests` route:
+Report from running `vegeta attack -duration=60s` on the `GET /manifest` route:
 
 ```text
 Requests      [total, rate]            3000, 50.02

@@ -1,0 +1,13 @@
+# @format
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: microfest
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Mi
+  storageClassName: standard

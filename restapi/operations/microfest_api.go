@@ -43,6 +43,9 @@ func NewMicrofestAPI(spec *loads.Document) *MicrofestAPI {
 		GetConfigurationHandler: GetConfigurationHandlerFunc(func(params GetConfigurationParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetConfiguration has not yet been implemented")
 		}),
+		GetHealthcheckHandler: GetHealthcheckHandlerFunc(func(params GetHealthcheckParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetHealthcheck has not yet been implemented")
+		}),
 		GetManifestHandler: GetManifestHandlerFunc(func(params GetManifestParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetManifest has not yet been implemented")
 		}),
@@ -105,6 +108,8 @@ type MicrofestAPI struct {
 
 	// GetConfigurationHandler sets the operation handler for the get configuration operation
 	GetConfigurationHandler GetConfigurationHandler
+	// GetHealthcheckHandler sets the operation handler for the get healthcheck operation
+	GetHealthcheckHandler GetHealthcheckHandler
 	// GetManifestHandler sets the operation handler for the get manifest operation
 	GetManifestHandler GetManifestHandler
 	// PostConfigurationHandler sets the operation handler for the post configuration operation
@@ -186,6 +191,10 @@ func (o *MicrofestAPI) Validate() error {
 
 	if o.GetConfigurationHandler == nil {
 		unregistered = append(unregistered, "GetConfigurationHandler")
+	}
+
+	if o.GetHealthcheckHandler == nil {
+		unregistered = append(unregistered, "GetHealthcheckHandler")
 	}
 
 	if o.GetManifestHandler == nil {
@@ -321,6 +330,11 @@ func (o *MicrofestAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/configuration"] = NewGetConfiguration(o.context, o.GetConfigurationHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/healthcheck"] = NewGetHealthcheck(o.context, o.GetHealthcheckHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

@@ -103,6 +103,17 @@ func init() {
         }
       }
     },
+    "/healthcheck": {
+      "get": {
+        "summary": "Gets the health of the service",
+        "operationId": "GetHealthcheck",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/manifest": {
       "get": {
         "security": [
@@ -432,6 +443,17 @@ func init() {
             "schema": {
               "type": "string"
             }
+          }
+        }
+      }
+    },
+    "/healthcheck": {
+      "get": {
+        "summary": "Gets the health of the service",
+        "operationId": "GetHealthcheck",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
