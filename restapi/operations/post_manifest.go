@@ -8,11 +8,7 @@ package operations
 import (
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
 	middleware "github.com/go-openapi/runtime/middleware"
-	strfmt "github.com/go-openapi/strfmt"
-	swag "github.com/go-openapi/swag"
-	validate "github.com/go-openapi/validate"
 
 	models "github.com/LGUG2Z/microfest/models"
 )
@@ -74,88 +70,4 @@ func (o *PostManifest) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// PostManifestBody post manifest body
-// swagger:model PostManifestBody
-type PostManifestBody struct {
-
-	// manifest
-	// Required: true
-	Manifest interface{} `json:"manifest"`
-
-	// release
-	// Required: true
-	Release *string `json:"release"`
-
-	// updated
-	// Required: true
-	Updated []string `json:"updated"`
-}
-
-// Validate validates this post manifest body
-func (o *PostManifestBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateManifest(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateRelease(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateUpdated(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PostManifestBody) validateManifest(formats strfmt.Registry) error {
-
-	if err := validate.Required("microfest"+"."+"manifest", "body", o.Manifest); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *PostManifestBody) validateRelease(formats strfmt.Registry) error {
-
-	if err := validate.Required("microfest"+"."+"release", "body", o.Release); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *PostManifestBody) validateUpdated(formats strfmt.Registry) error {
-
-	if err := validate.Required("microfest"+"."+"updated", "body", o.Updated); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PostManifestBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PostManifestBody) UnmarshalBinary(b []byte) error {
-	var res PostManifestBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

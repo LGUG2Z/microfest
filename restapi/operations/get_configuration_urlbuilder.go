@@ -11,9 +11,9 @@ import (
 	golangswaggerpaths "path"
 )
 
-// PostBackupURL generates an URL for the post backup operation
-type PostBackupURL struct {
-	Bucket string
+// GetConfigurationURL generates an URL for the get configuration operation
+type GetConfigurationURL struct {
+	Host string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -23,7 +23,7 @@ type PostBackupURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostBackupURL) WithBasePath(bp string) *PostBackupURL {
+func (o *GetConfigurationURL) WithBasePath(bp string) *GetConfigurationURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -31,24 +31,24 @@ func (o *PostBackupURL) WithBasePath(bp string) *PostBackupURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostBackupURL) SetBasePath(bp string) {
+func (o *GetConfigurationURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *PostBackupURL) Build() (*url.URL, error) {
+func (o *GetConfigurationURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/backup"
+	var _path = "/configuration"
 
 	_basePath := o._basePath
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
 
-	bucket := o.Bucket
-	if bucket != "" {
-		qs.Set("bucket", bucket)
+	host := o.Host
+	if host != "" {
+		qs.Set("host", host)
 	}
 
 	_result.RawQuery = qs.Encode()
@@ -57,7 +57,7 @@ func (o *PostBackupURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *PostBackupURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetConfigurationURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -68,17 +68,17 @@ func (o *PostBackupURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *PostBackupURL) String() string {
+func (o *GetConfigurationURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *PostBackupURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetConfigurationURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on PostBackupURL")
+		return nil, errors.New("scheme is required for a full url on GetConfigurationURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on PostBackupURL")
+		return nil, errors.New("host is required for a full url on GetConfigurationURL")
 	}
 
 	base, err := o.Build()
@@ -92,6 +92,6 @@ func (o *PostBackupURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *PostBackupURL) StringFull(scheme, host string) string {
+func (o *GetConfigurationURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

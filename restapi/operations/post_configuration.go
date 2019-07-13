@@ -13,40 +13,40 @@ import (
 	models "github.com/LGUG2Z/microfest/models"
 )
 
-// GetInfoHandlerFunc turns a function with the right signature into a get info handler
-type GetInfoHandlerFunc func(GetInfoParams, *models.Principal) middleware.Responder
+// PostConfigurationHandlerFunc turns a function with the right signature into a post configuration handler
+type PostConfigurationHandlerFunc func(PostConfigurationParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetInfoHandlerFunc) Handle(params GetInfoParams, principal *models.Principal) middleware.Responder {
+func (fn PostConfigurationHandlerFunc) Handle(params PostConfigurationParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetInfoHandler interface for that can handle valid get info params
-type GetInfoHandler interface {
-	Handle(GetInfoParams, *models.Principal) middleware.Responder
+// PostConfigurationHandler interface for that can handle valid post configuration params
+type PostConfigurationHandler interface {
+	Handle(PostConfigurationParams, *models.Principal) middleware.Responder
 }
 
-// NewGetInfo creates a new http.Handler for the get info operation
-func NewGetInfo(ctx *middleware.Context, handler GetInfoHandler) *GetInfo {
-	return &GetInfo{Context: ctx, Handler: handler}
+// NewPostConfiguration creates a new http.Handler for the post configuration operation
+func NewPostConfiguration(ctx *middleware.Context, handler PostConfigurationHandler) *PostConfiguration {
+	return &PostConfiguration{Context: ctx, Handler: handler}
 }
 
-/*GetInfo swagger:route GET /info getInfo
+/*PostConfiguration swagger:route POST /configuration postConfiguration
 
-Gets information about the current manifest
+Submits a new configuration
 
 */
-type GetInfo struct {
+type PostConfiguration struct {
 	Context *middleware.Context
-	Handler GetInfoHandler
+	Handler PostConfigurationHandler
 }
 
-func (o *GetInfo) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *PostConfiguration) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewGetInfoParams()
+	var Params = NewPostConfigurationParams()
 
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {

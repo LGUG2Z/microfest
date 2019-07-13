@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+
+	models "github.com/LGUG2Z/microfest/models"
 )
 
 // GetManifestHandlerFunc turns a function with the right signature into a get manifest handler
-type GetManifestHandlerFunc func(GetManifestParams) middleware.Responder
+type GetManifestHandlerFunc func(GetManifestParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetManifestHandlerFunc) Handle(params GetManifestParams) middleware.Responder {
-	return fn(params)
+func (fn GetManifestHandlerFunc) Handle(params GetManifestParams, principal *models.Principal) middleware.Responder {
+	return fn(params, principal)
 }
 
 // GetManifestHandler interface for that can handle valid get manifest params
 type GetManifestHandler interface {
-	Handle(GetManifestParams) middleware.Responder
+	Handle(GetManifestParams, *models.Principal) middleware.Responder
 }
 
 // NewGetManifest creates a new http.Handler for the get manifest operation
@@ -31,7 +33,7 @@ func NewGetManifest(ctx *middleware.Context, handler GetManifestHandler) *GetMan
 
 /*GetManifest swagger:route GET /manifest getManifest
 
-Gets the latest manifest
+Gets the manifest
 
 */
 type GetManifest struct {
@@ -46,12 +48,25 @@ func (o *GetManifest) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 	var Params = NewGetManifestParams()
 
+	uprinc, aCtx, err := o.Context.Authorize(r, route)
+	if err != nil {
+		o.Context.Respond(rw, r, route.Produces, route, err)
+		return
+	}
+	if aCtx != nil {
+		r = aCtx
+	}
+	var principal *models.Principal
+	if uprinc != nil {
+		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
+	}
+
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params) // actually handle the request
+	res := o.Handler.Handle(Params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

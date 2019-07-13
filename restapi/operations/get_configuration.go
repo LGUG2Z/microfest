@@ -13,40 +13,40 @@ import (
 	models "github.com/LGUG2Z/microfest/models"
 )
 
-// PostBackupHandlerFunc turns a function with the right signature into a post backup handler
-type PostBackupHandlerFunc func(PostBackupParams, *models.Principal) middleware.Responder
+// GetConfigurationHandlerFunc turns a function with the right signature into a get configuration handler
+type GetConfigurationHandlerFunc func(GetConfigurationParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn PostBackupHandlerFunc) Handle(params PostBackupParams, principal *models.Principal) middleware.Responder {
+func (fn GetConfigurationHandlerFunc) Handle(params GetConfigurationParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// PostBackupHandler interface for that can handle valid post backup params
-type PostBackupHandler interface {
-	Handle(PostBackupParams, *models.Principal) middleware.Responder
+// GetConfigurationHandler interface for that can handle valid get configuration params
+type GetConfigurationHandler interface {
+	Handle(GetConfigurationParams, *models.Principal) middleware.Responder
 }
 
-// NewPostBackup creates a new http.Handler for the post backup operation
-func NewPostBackup(ctx *middleware.Context, handler PostBackupHandler) *PostBackup {
-	return &PostBackup{Context: ctx, Handler: handler}
+// NewGetConfiguration creates a new http.Handler for the get configuration operation
+func NewGetConfiguration(ctx *middleware.Context, handler GetConfigurationHandler) *GetConfiguration {
+	return &GetConfiguration{Context: ctx, Handler: handler}
 }
 
-/*PostBackup swagger:route POST /backup postBackup
+/*GetConfiguration swagger:route GET /configuration getConfiguration
 
-Backs up the database to a GCS bucket
+Gets the configuration
 
 */
-type PostBackup struct {
+type GetConfiguration struct {
 	Context *middleware.Context
-	Handler PostBackupHandler
+	Handler GetConfigurationHandler
 }
 
-func (o *PostBackup) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *GetConfiguration) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewPostBackupParams()
+	var Params = NewGetConfigurationParams()
 
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {

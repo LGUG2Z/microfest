@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/LGUG2Z/microfest/models"
 	"github.com/LGUG2Z/microfest/restapi/operations"
@@ -13,30 +12,37 @@ import (
 
 var BoltPath string
 
-type Microfest struct {
-	Release  *string           `json:"release"`
-	Manifest map[string]string `json:"manifest"`
-	Updated  []string          `json:"updated"`
+var ErrManifestNotFound = func(host string) error {
+	return fmt.Errorf("manifest not found for %s", host)
 }
 
-func GetManifest(params operations.GetManifestParams) middleware.Responder {
+func GetManifest(params operations.GetManifestParams, principal *models.Principal) middleware.Responder {
 	db, err := bolt.Open(BoltPath, 0666, nil)
 	if err != nil {
 		return operations.NewGetManifestInternalServerError().WithPayload(err.Error())
 	}
 	defer db.Close()
 
-	m := &Microfest{}
+	m := map[string]interface{}{}
 
 	if err := db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(params.Host))
+		if bucket == nil {
+			return ErrManifestNotFound(params.Host)
+		}
+
 		latest := bucket.Get([]byte("latest"))
-		return json.Unmarshal(latest, m)
+		return json.Unmarshal(latest, &m)
 	}); err != nil {
-		return operations.NewGetManifestInternalServerError().WithPayload(err.Error())
+		switch err.Error() {
+		case ErrManifestNotFound(params.Host).Error():
+			return operations.NewGetManifestNotFound().WithPayload(err.Error())
+		default:
+			return operations.NewGetManifestInternalServerError().WithPayload(err.Error())
+		}
 	}
 
-	return operations.NewGetManifestOK().WithPayload(m.Manifest).WithCacheControl("no-cache")
+	return operations.NewGetManifestOK().WithPayload(m).WithCacheControl("no-cache")
 }
 
 func PutManifest(params operations.PutManifestParams, principal *models.Principal) middleware.Responder {
@@ -46,23 +52,27 @@ func PutManifest(params operations.PutManifestParams, principal *models.Principa
 	}
 	defer db.Close()
 
-	m := &Microfest{}
-
-	key := time.Now().Format("20060102150405MST")
+	m := map[string]interface{}{}
 
 	if err := db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(params.Host))
+		if bucket == nil {
+			return ErrManifestNotFound(params.Host)
+		}
+
 		latest := bucket.Get([]byte("latest"))
-		return json.Unmarshal(latest, m)
+		return json.Unmarshal(latest, &m)
 	}); err != nil {
-		return operations.NewPutManifestInternalServerError().WithPayload(err.Error())
+		switch err.Error() {
+		case ErrManifestNotFound(params.Host).Error():
+			return operations.NewPutManifestNotFound().WithPayload(err.Error())
+		default:
+			return operations.NewPutManifestInternalServerError().WithPayload(err.Error())
+		}
 	}
 
-	m.Release = params.Microfest.Release
-	m.Updated = params.Microfest.Updated
-
-	for microApp, bundle := range params.Microfest.Manifest.(map[string]interface{}) {
-		m.Manifest[microApp] = bundle.(string)
+	for microApp, bundle := range params.Manifest.(map[string]interface{}) {
+		m[microApp] = bundle.(string)
 	}
 
 	if err := db.Update(func(tx *bolt.Tx) error {
@@ -73,16 +83,12 @@ func PutManifest(params operations.PutManifestParams, principal *models.Principa
 			return err
 		}
 
-		if err := bucket.Put([]byte(key), manifest); err != nil {
-			return err
-		}
-
 		return bucket.Put([]byte("latest"), manifest)
 	}); err != nil {
 		return operations.NewPutManifestInternalServerError().WithPayload(err.Error())
 	}
 
-	return operations.NewPutManifestCreated().WithPayload(fmt.Sprintf("created manifest %s with key %s", *params.Microfest.Release, key))
+	return operations.NewPutManifestCreated().WithPayload(fmt.Sprintf("created manifest for host %s", params.Host))
 }
 
 func PostManifest(params operations.PostManifestParams, principal *models.Principal) middleware.Responder {
@@ -92,20 +98,14 @@ func PostManifest(params operations.PostManifestParams, principal *models.Princi
 	}
 	defer db.Close()
 
-	key := time.Now().Format("20060102150405MST")
-
 	if err := db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte(params.Host))
 		if err != nil {
 			return err
 		}
 
-		manifest, err := json.Marshal(params.Microfest)
+		manifest, err := json.Marshal(params.Manifest)
 		if err != nil {
-			return err
-		}
-
-		if err = bucket.Put([]byte(key), manifest); err != nil {
 			return err
 		}
 
@@ -118,5 +118,5 @@ func PostManifest(params operations.PostManifestParams, principal *models.Princi
 		return operations.NewPostManifestInternalServerError().WithPayload(err.Error())
 	}
 
-	return operations.NewPostManifestCreated().WithPayload(fmt.Sprintf("created manifest %s with key %s", *params.Microfest.Release, key))
+	return operations.NewPostManifestCreated().WithPayload(fmt.Sprintf("created manifest for host %s", params.Host))
 }

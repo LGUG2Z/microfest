@@ -40,7 +40,7 @@ type PostManifestParams struct {
 	/*The manifest to submit
 	  In: body
 	*/
-	Microfest PostManifestBody
+	Manifest interface{}
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -61,18 +61,12 @@ func (o *PostManifestParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body PostManifestBody
+		var body interface{}
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("microfest", "body", "", err))
+			res = append(res, errors.NewParseError("manifest", "body", "", err))
 		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			if len(res) == 0 {
-				o.Microfest = body
-			}
+			// no validation on generic interface
+			o.Manifest = body
 		}
 	}
 	if len(res) > 0 {

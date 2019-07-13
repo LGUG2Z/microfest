@@ -40,14 +40,14 @@ func NewMicrofestAPI(spec *loads.Document) *MicrofestAPI {
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
 		TxtProducer:         runtime.TextProducer(),
-		GetInfoHandler: GetInfoHandlerFunc(func(params GetInfoParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation GetInfo has not yet been implemented")
+		GetConfigurationHandler: GetConfigurationHandlerFunc(func(params GetConfigurationParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetConfiguration has not yet been implemented")
 		}),
-		GetManifestHandler: GetManifestHandlerFunc(func(params GetManifestParams) middleware.Responder {
+		GetManifestHandler: GetManifestHandlerFunc(func(params GetManifestParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetManifest has not yet been implemented")
 		}),
-		PostBackupHandler: PostBackupHandlerFunc(func(params PostBackupParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation PostBackup has not yet been implemented")
+		PostConfigurationHandler: PostConfigurationHandlerFunc(func(params PostConfigurationParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation PostConfiguration has not yet been implemented")
 		}),
 		PostManifestHandler: PostManifestHandlerFunc(func(params PostManifestParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation PostManifest has not yet been implemented")
@@ -66,7 +66,7 @@ func NewMicrofestAPI(spec *loads.Document) *MicrofestAPI {
 	}
 }
 
-/*MicrofestAPI Micro Application Manifest Manager */
+/*MicrofestAPI Micro Application Manifest and Configuration Manager */
 type MicrofestAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -103,12 +103,12 @@ type MicrofestAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// GetInfoHandler sets the operation handler for the get info operation
-	GetInfoHandler GetInfoHandler
+	// GetConfigurationHandler sets the operation handler for the get configuration operation
+	GetConfigurationHandler GetConfigurationHandler
 	// GetManifestHandler sets the operation handler for the get manifest operation
 	GetManifestHandler GetManifestHandler
-	// PostBackupHandler sets the operation handler for the post backup operation
-	PostBackupHandler PostBackupHandler
+	// PostConfigurationHandler sets the operation handler for the post configuration operation
+	PostConfigurationHandler PostConfigurationHandler
 	// PostManifestHandler sets the operation handler for the post manifest operation
 	PostManifestHandler PostManifestHandler
 	// PutManifestHandler sets the operation handler for the put manifest operation
@@ -184,16 +184,16 @@ func (o *MicrofestAPI) Validate() error {
 		unregistered = append(unregistered, "XAPIKEYAuth")
 	}
 
-	if o.GetInfoHandler == nil {
-		unregistered = append(unregistered, "GetInfoHandler")
+	if o.GetConfigurationHandler == nil {
+		unregistered = append(unregistered, "GetConfigurationHandler")
 	}
 
 	if o.GetManifestHandler == nil {
 		unregistered = append(unregistered, "GetManifestHandler")
 	}
 
-	if o.PostBackupHandler == nil {
-		unregistered = append(unregistered, "PostBackupHandler")
+	if o.PostConfigurationHandler == nil {
+		unregistered = append(unregistered, "PostConfigurationHandler")
 	}
 
 	if o.PostManifestHandler == nil {
@@ -320,7 +320,7 @@ func (o *MicrofestAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/info"] = NewGetInfo(o.context, o.GetInfoHandler)
+	o.handlers["GET"]["/configuration"] = NewGetConfiguration(o.context, o.GetConfigurationHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -330,7 +330,7 @@ func (o *MicrofestAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/backup"] = NewPostBackup(o.context, o.PostBackupHandler)
+	o.handlers["POST"]["/configuration"] = NewPostConfiguration(o.context, o.PostConfigurationHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

@@ -28,7 +28,7 @@ func main() {
 
 	parser := flags.NewParser(server, flags.Default)
 	parser.ShortDescription = "Microfest"
-	parser.LongDescription = "Micro Application Manifest Manager"
+	parser.LongDescription = "Micro Application Manifest and Configuration Manager"
 
 	server.ConfigureFlags()
 	for _, optsGroup := range api.CommandLineOptionsGroups {

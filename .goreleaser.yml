@@ -1,0 +1,37 @@
+# @format
+
+project_name: microfest
+
+env:
+  - GO111MODULE=on
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    binary: microfest-server
+    main: ./cmd/microfest-server/main.go
+    goarch:
+      - amd64
+
+dockers:
+  - image_templates:
+      - "lgug2z/microfest:{{ .Major }}"
+      - "lgug2z/microfest:{{ .Major }}.{{ .Minor }}"
+      - "lgug2z/microfest:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "lgug2z/microfest:{{ .ShortCommit }}"
+      - "lgug2z/microfest:latest"
+    goos: linux
+
+snapshot:
+  name_template: "{{ .Tag }}-snapshot"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

@@ -75,6 +75,94 @@ func (o *GetManifestOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
+// GetManifestUnauthorizedCode is the HTTP code returned for type GetManifestUnauthorized
+const GetManifestUnauthorizedCode int = 401
+
+/*GetManifestUnauthorized Unauthorized
+
+swagger:response getManifestUnauthorized
+*/
+type GetManifestUnauthorized struct {
+	/*Authorization information is missing or invalid
+
+	 */
+	WWWAuthenticate string `json:"WWW-Authenticate"`
+}
+
+// NewGetManifestUnauthorized creates GetManifestUnauthorized with default headers values
+func NewGetManifestUnauthorized() *GetManifestUnauthorized {
+
+	return &GetManifestUnauthorized{}
+}
+
+// WithWWWAuthenticate adds the wWWAuthenticate to the get manifest unauthorized response
+func (o *GetManifestUnauthorized) WithWWWAuthenticate(wWWAuthenticate string) *GetManifestUnauthorized {
+	o.WWWAuthenticate = wWWAuthenticate
+	return o
+}
+
+// SetWWWAuthenticate sets the wWWAuthenticate to the get manifest unauthorized response
+func (o *GetManifestUnauthorized) SetWWWAuthenticate(wWWAuthenticate string) {
+	o.WWWAuthenticate = wWWAuthenticate
+}
+
+// WriteResponse to the client
+func (o *GetManifestUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	// response header WWW-Authenticate
+
+	wWWAuthenticate := o.WWWAuthenticate
+	if wWWAuthenticate != "" {
+		rw.Header().Set("WWW-Authenticate", wWWAuthenticate)
+	}
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(401)
+}
+
+// GetManifestNotFoundCode is the HTTP code returned for type GetManifestNotFound
+const GetManifestNotFoundCode int = 404
+
+/*GetManifestNotFound Not Found
+
+swagger:response getManifestNotFound
+*/
+type GetManifestNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload string `json:"body,omitempty"`
+}
+
+// NewGetManifestNotFound creates GetManifestNotFound with default headers values
+func NewGetManifestNotFound() *GetManifestNotFound {
+
+	return &GetManifestNotFound{}
+}
+
+// WithPayload adds the payload to the get manifest not found response
+func (o *GetManifestNotFound) WithPayload(payload string) *GetManifestNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get manifest not found response
+func (o *GetManifestNotFound) SetPayload(payload string) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetManifestNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // GetManifestInternalServerErrorCode is the HTTP code returned for type GetManifestInternalServerError
 const GetManifestInternalServerErrorCode int = 500
 

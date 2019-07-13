@@ -16,18 +16,18 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetInfoParams creates a new GetInfoParams object
+// NewGetConfigurationParams creates a new GetConfigurationParams object
 // no default values defined in spec.
-func NewGetInfoParams() GetInfoParams {
+func NewGetConfigurationParams() GetConfigurationParams {
 
-	return GetInfoParams{}
+	return GetConfigurationParams{}
 }
 
-// GetInfoParams contains all the bound params for the get info operation
+// GetConfigurationParams contains all the bound params for the get configuration operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetInfo
-type GetInfoParams struct {
+// swagger:parameters GetConfiguration
+type GetConfigurationParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -37,18 +37,13 @@ type GetInfoParams struct {
 	  In: query
 	*/
 	Host string
-	/*The manifest key
-	  Required: true
-	  In: query
-	*/
-	Key string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetInfoParams() beforehand.
-func (o *GetInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetConfigurationParams() beforehand.
+func (o *GetConfigurationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -60,11 +55,6 @@ func (o *GetInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 		res = append(res, err)
 	}
 
-	qKey, qhkKey, _ := qs.GetOK("key")
-	if err := o.bindKey(qKey, qhkKey, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,7 +62,7 @@ func (o *GetInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 }
 
 // bindHost binds and validates parameter Host from query.
-func (o *GetInfoParams) bindHost(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetConfigurationParams) bindHost(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("host", "query")
 	}
@@ -88,27 +78,6 @@ func (o *GetInfoParams) bindHost(rawData []string, hasKey bool, formats strfmt.R
 	}
 
 	o.Host = raw
-
-	return nil
-}
-
-// bindKey binds and validates parameter Key from query.
-func (o *GetInfoParams) bindKey(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("key", "query")
-	}
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// AllowEmptyValue: false
-	if err := validate.RequiredString("key", "query", raw); err != nil {
-		return err
-	}
-
-	o.Key = raw
 
 	return nil
 }

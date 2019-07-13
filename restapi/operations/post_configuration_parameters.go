@@ -16,59 +16,59 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewPutManifestParams creates a new PutManifestParams object
+// NewPostConfigurationParams creates a new PostConfigurationParams object
 // no default values defined in spec.
-func NewPutManifestParams() PutManifestParams {
+func NewPostConfigurationParams() PostConfigurationParams {
 
-	return PutManifestParams{}
+	return PostConfigurationParams{}
 }
 
-// PutManifestParams contains all the bound params for the put manifest operation
+// PostConfigurationParams contains all the bound params for the post configuration operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters PutManifest
-type PutManifestParams struct {
+// swagger:parameters PostConfiguration
+type PostConfigurationParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*The configuration to submit
+	  In: body
+	*/
+	Configuration interface{}
 	/*The environment hostname
 	  Required: true
 	  In: query
 	*/
 	Host string
-	/*The manifest to submit
-	  In: body
-	*/
-	Manifest interface{}
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewPutManifestParams() beforehand.
-func (o *PutManifestParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewPostConfigurationParams() beforehand.
+func (o *PostConfigurationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body interface{}
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			res = append(res, errors.NewParseError("configuration", "body", "", err))
+		} else {
+			// no validation on generic interface
+			o.Configuration = body
+		}
+	}
 	qHost, qhkHost, _ := qs.GetOK("host")
 	if err := o.bindHost(qHost, qhkHost, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body interface{}
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("manifest", "body", "", err))
-		} else {
-			// no validation on generic interface
-			o.Manifest = body
-		}
-	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -76,7 +76,7 @@ func (o *PutManifestParams) BindRequest(r *http.Request, route *middleware.Match
 }
 
 // bindHost binds and validates parameter Host from query.
-func (o *PutManifestParams) bindHost(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *PostConfigurationParams) bindHost(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("host", "query")
 	}

@@ -123,6 +123,48 @@ func (o *PutManifestUnauthorized) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(401)
 }
 
+// PutManifestNotFoundCode is the HTTP code returned for type PutManifestNotFound
+const PutManifestNotFoundCode int = 404
+
+/*PutManifestNotFound Not Found
+
+swagger:response putManifestNotFound
+*/
+type PutManifestNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload string `json:"body,omitempty"`
+}
+
+// NewPutManifestNotFound creates PutManifestNotFound with default headers values
+func NewPutManifestNotFound() *PutManifestNotFound {
+
+	return &PutManifestNotFound{}
+}
+
+// WithPayload adds the payload to the put manifest not found response
+func (o *PutManifestNotFound) WithPayload(payload string) *PutManifestNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the put manifest not found response
+func (o *PutManifestNotFound) SetPayload(payload string) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PutManifestNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // PutManifestInternalServerErrorCode is the HTTP code returned for type PutManifestInternalServerError
 const PutManifestInternalServerErrorCode int = 500
 
